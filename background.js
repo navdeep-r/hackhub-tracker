@@ -4,7 +4,13 @@
  */
 
 // Configuration
-const HACKHUB_DOMAINS = ['http://localhost:3000', 'https://hackhub.com'];
+const HACKHUB_DOMAINS = [
+    'http://localhost/',
+    'https://localhost/',
+    'http://localhost:5173/',
+    'http://localhost:5000/',
+    'https://hackhub.com/'
+];
 const TOKEN_CHECK_INTERVAL = 30000; // Check every 30 seconds
 const AUTH_COOKIE_NAME = 'auth_token';
 
@@ -25,23 +31,19 @@ async function fetchAuthToken() {
 
             if (cookies && cookies.length > 0) {
                 const token = cookies[0].value;
-                console.log('[HackHub Tracker] Auth token found:', token.substring(0, 10) + '...');
-
-                // Save to chrome.storage.local
-                await chrome.storage.local.set({
-                    authToken: token,
-                    lastSynced: Date.now(),
-                    domain: domain
-                });
+                console.log('[HackHub Tracker] Auth token found:', token);
 
                 return token;
             }
         }
 
         console.log('[HackHub Tracker] No auth token found in cookies');
+
         return null;
+
     } catch (error) {
         console.error('[HackHub Tracker] Error fetching auth token:', error);
+
         return null;
     }
 }
@@ -49,29 +51,46 @@ async function fetchAuthToken() {
 /**
  * Periodic token synchronization
  */
-async function startTokenSync() {
-    // Initial fetch
-    await fetchAuthToken();
+// async function startTokenSync() {
+//     // Initial fetch
+//     await fetchAuthToken();
 
-    // Set up periodic checking
-    setInterval(async () => {
-        await fetchAuthToken();
-    }, TOKEN_CHECK_INTERVAL);
-}
+//     // Set up periodic checking
+//     setInterval(async () => {
+//         await fetchAuthToken();
+//     }, TOKEN_CHECK_INTERVAL);
+// }
 
 /**
  * Listen for messages from content script
  */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'getAuthToken') {
-        chrome.storage.local.get(['authToken'], (result) => {
-            sendResponse({ token: result.authToken || null });
-        });
+        fetchAuthToken().then(token => {
+            sendResponse({ token })
+        })
         return true; // Keep channel open for async response
     }
 
     if (request.action === 'logEvent') {
         console.log('[HackHub Tracker]', request.message);
+    }
+
+    if (request.action === 'trackRegistration') {
+        fetch('http://localhost:5000/api/extension-webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request.payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log('[HackHub Tracker] Webhook success:', data);
+            })
+            .catch(err => {
+                console.error('[HackHub Tracker] Webhook error:', err);
+            });
+
+        return true;
     }
 });
 
@@ -80,10 +99,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
  */
 chrome.runtime.onInstalled.addListener(() => {
     console.log('[HackHub Tracker] Extension installed/updated');
-    startTokenSync();
+    // startTokenSync();
 });
 
 // Start token sync when service worker loads
-startTokenSync();
+// startTokenSync();
 
 console.log('[HackHub Tracker] Background service worker initialized');

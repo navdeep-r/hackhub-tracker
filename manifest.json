@@ -1,47 +1,49 @@
-{
-    "manifest_version": 3,
-    "name": "HackHub Tracker",
-    "version": "1.0.0",
-    "description": "Track hackathon registrations and sync with HackHub",
-    "permissions": [
-        "cookies",
-        "storage",
-        "activeTab",
-        "scripting"
-    ],
-    "host_permissions": [
-        "*://*.devpost.com/*",
-        "*://*.unstop.com/*",
-        "*://*.devfolio.co/*",
-        "*://*.hackerrank.com/*",
-        "http://localhost:3000/*",
-        "https://hackhub.com/*"
-    ],
-    "background": {
-        "service_worker": "background.js"
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "js": [
-                "content.js"
-            ],
-            "run_at": "document_end"
-        }
-    ],
-    "action": {
-        "default_popup": "popup.html",
-        "default_icon": {
+    {
+        "manifest_version": 3,
+        "name": "HackHub Tracker",
+        "version": "1.0.0",
+        "description": "Track hackathon registrations and sync with HackHub",
+        "permissions": [
+            "cookies",
+            "storage",
+            "activeTab",
+            "scripting"
+        ],
+        "host_permissions": [
+            "*://*.devpost.com/*",
+            "*://*.unstop.com/*",
+            "*://*.devfolio.co/*",
+            "*://*.hackerrank.com/*",
+            "http://localhost:5000/*",
+            "http://localhost/*",
+            "http://localhost:5173/*",
+            "https://hackhub.com/*"
+        ],
+        "background": {
+            "service_worker": "background.js"
+        },
+        "content_scripts": [
+            {
+                "matches": [
+                    "<all_urls>"
+                ],
+                "js": [
+                    "content.js"
+                ],
+                "run_at": "document_end"
+            }
+        ],
+        "action": {
+            "default_popup": "popup.html",
+            "default_icon": {
+                "16": "icon16.png",
+                "48": "icon48.png",
+                "128": "icon128.png"
+            }
+        },
+        "icons": {
             "16": "icon16.png",
             "48": "icon48.png",
             "128": "icon128.png"
         }
-    },
-    "icons": {
-        "16": "icon16.png",
-        "48": "icon48.png",
-        "128": "icon128.png"
     }
-}

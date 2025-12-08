@@ -43,7 +43,7 @@ hackhub-tracker/
 
 The extension sends POST requests to:
 ```
-http://localhost:3000/api/extension-webhook
+http://localhost:5000/api/extension-webhook
 ```
 
 **Expected Payload:**
@@ -155,7 +155,7 @@ Open DevTools on any page and look for:
 
 ### Test Flow
 
-1. **Login to HackHub** at `http://localhost:3000`
+1. **Login to HackHub** at `http://localhost:5000`
 2. **Check popup**: Should show auth token (first 8 chars)
 3. **Visit hackathon site**: e.g., `https://devpost.com`
 4. **Click a registration button**
@@ -230,7 +230,7 @@ const WEBHOOK_URL = 'https://hackhub.com/api/extension-webhook';
 - Verify cookie domain settings
 
 ### "Webhook failed"
-- Check backend is running on `localhost:3000`
+- Check backend is running on `localhost:5000`
 - Verify CORS settings
 - Check backend logs for errors
 

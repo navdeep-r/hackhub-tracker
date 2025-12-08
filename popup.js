@@ -4,33 +4,24 @@
  */
 
 function formatTimestamp(timestamp) {
-    if (!timestamp) return 'Never';
+    if (!timestamp) return 'N/A';
     const date = new Date(timestamp);
-    const now = Date.now();
-    const diff = now - timestamp;
-
-    if (diff < 60000) {
-        return 'Just now';
-    } else if (diff < 3600000) {
-        const minutes = Math.floor(diff / 60000);
-        return `${minutes}m ago`;
-    } else {
-        const hours = Math.floor(diff / 3600000);
-        return `${hours}h ago`;
-    }
+    return date.toLocaleString(); // human readable full date/time
 }
 
 async function updateStatus() {
     try {
-        const result = await chrome.storage.local.get(['authToken', 'lastSynced', 'domain']);
+        // const result = await chrome.storage.local.get(['lastSynced', 'domain']);
+        const { token } = await chrome.runtime.sendMessage({ action: 'getAuthToken' })
+        const authToken = token
 
         const tokenStatus = document.getElementById('token-status');
         const syncTime = document.getElementById('sync-time');
         const statusText = document.getElementById('status-text');
         const statusIndicator = document.querySelector('.status-indicator');
 
-        if (result.authToken) {
-            const truncated = result.authToken.substring(0, 8) + '...';
+        if (authToken) {
+            const truncated = authToken.substring(0, 8) + '...';
             tokenStatus.textContent = truncated;
             statusText.textContent = 'Active';
             statusIndicator.className = 'status-indicator status-active';
@@ -40,7 +31,7 @@ async function updateStatus() {
             statusIndicator.className = 'status-indicator status-inactive';
         }
 
-        syncTime.textContent = formatTimestamp(result.lastSynced);
+        syncTime.textContent = formatTimestamp(Date.now());
     } catch (error) {
         console.error('Error updating status:', error);
     }
@@ -58,4 +49,4 @@ document.getElementById('refresh-btn').addEventListener('click', () => {
 });
 
 // Auto-refresh every 5 seconds
-setInterval(updateStatus, 5000);
+setInterval(updateStatus, 30000);
