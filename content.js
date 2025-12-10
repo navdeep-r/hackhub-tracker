@@ -30,7 +30,9 @@ let lastUnstopAutoUrl = null;
 function isOnUnstopHackathonPage() {
     const host = window.location.hostname;
     // const path = window.location.pathname || '';
-    return host.endsWith('unstop.com') //&& path.startsWith('/hackathons/');
+    result = host.endsWith('unstop.com');
+    // result && alert("Unstop");
+    return result //&& path.startsWith('/hackathons/');
 }
 
 /**
@@ -143,7 +145,7 @@ async function checkUnstopRegistration() {
         .trim();
 
     // Match the "You've Registered" text (case-insensitive)
-    if (!text.includes("you've registered") || !text.includes(" view details ")) {
+    if (!(text.includes("you've registered") || text.includes("view details"))) {
         return;
     }
 
