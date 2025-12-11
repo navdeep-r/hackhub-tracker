@@ -5,10 +5,14 @@
 
 // Configuration
 const HACKHUB_DOMAINS = [
+    // Check backend first (where cookie is currently stored)
+    'https://hackhub-cit-1.onrender.com/',
+    'https://hackhub-cit.vercel.app/',
+    // Localhost for development
+    'http://localhost:5000/',
+    'http://localhost:5173/',
     'http://localhost/',
     'https://localhost/',
-    'http://localhost:5173/',
-    'http://localhost:5000/',
     'https://hackhub.com/'
 ];
 const TOKEN_CHECK_INTERVAL = 30000; // Check every 30 seconds
@@ -77,14 +81,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 
     if (request.action === 'trackRegistration') {
-        fetch('http://localhost:5000/api/extension-webhook', {
+        fetch('https://hackhub-cit-1.onrender.com/api/extension-webhook', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(request.payload)
         })
-            .then(res => res.json())
+            .then(async res => {
+                console.log('[HackHub Tracker] Webhook response status:', res.status);
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error('[HackHub Tracker] Webhook failed:', res.status, text.substring(0, 200));
+                    return;
+                }
+
+                return res.json();
+            })
             .then(data => {
-                console.log('[HackHub Tracker] Webhook success:', data);
+                if (data) {
+                    console.log('[HackHub Tracker] Webhook success:', data);
+                }
             })
             .catch(err => {
                 console.error('[HackHub Tracker] Webhook error:', err);

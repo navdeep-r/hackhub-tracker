@@ -17,6 +17,8 @@
             "http://localhost:5000/*",
             "http://localhost/*",
             "http://localhost:5173/*",
+            "https://hackhub-cit.vercel.app/*",
+            "https://hackhub-cit-1.onrender.com/*",
             "https://hackhub.com/*"
         ],
         "background": {

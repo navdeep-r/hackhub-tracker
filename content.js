@@ -4,7 +4,7 @@
  */
 
 // Configuration
-const WEBHOOK_URL = 'http://localhost:5000/api/extension-webhook';
+const WEBHOOK_URL = 'https://hackhub-cit-1.onrender.com/extension-webhook';
 const REGISTER_KEYWORDS = [
     'register',
     'apply',
@@ -205,7 +205,7 @@ function handleClick(event) {
  * Initialize the tracker
  */
 // Add near the top, after configuration:
-const HACKHUB_HOSTS = ['localhost', 'hackhub.com'];
+const HACKHUB_HOSTS = ['localhost', 'hackhub-cit.vercel.app', 'hackhub-cit-1.onrender.com', 'hackhub.com'];
 
 /**
  * Check if we are on HackHub itself
