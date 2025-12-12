@@ -168,7 +168,7 @@ async function checkUnstopRegistration() {
 
     console.log('[HackHub Tracker] Unstop auto-detect: user registered on', canonicalUrl);
 
-    // await sendRegistrationEvent('unstop-auto', btn, canonicalUrl);
+    await sendRegistrationEvent('unstop-auto', btn, canonicalUrl);
     console.log("registered unstop");
 }
 
@@ -202,7 +202,7 @@ async function checkDevpostRegistration() {
 
     console.log('[HackHub Tracker] Devpost auto-detect: user registered on', canonicalUrl);
 
-    // await sendRegistrationEvent('devpost-auto', btn, canonicalUrl);
+    await sendRegistrationEvent('devpost-auto', btn, canonicalUrl);
     console.log("registered devpost");
 }
 
