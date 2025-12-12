@@ -16,23 +16,24 @@ const REGISTER_KEYWORDS = [
     'attend'
 ];
 
-// Track recent clicks to prevent duplicates
-const recentClicks = new Set();
-const CLICK_COOLDOWN = 2000; // 2 seconds
+// // Track recent clicks to prevent duplicates
+// const recentClicks = new Set();
+// const CLICK_COOLDOWN = 2000; // 2 seconds
 
 // Track last auto-registered URL for Unstop to avoid duplicates
 let lastUnstopAutoUrl = null;
+let lastDevpostAutoUrl = null;
 
 /**
  * Check if current page is an Unstop hackathon page
  * e.g. https://unstop.com/hackathons/<name>
  */
 function isOnUnstopHackathonPage() {
-    const host = window.location.hostname;
-    // const path = window.location.pathname || '';
-    result = host.endsWith('unstop.com');
-    // result && alert("Unstop");
-    return result //&& path.startsWith('/hackathons/');
+    return window.location.hostname.endsWith('unstop.com');
+}
+
+function isOnDevpostHackathonPage() {
+    return window.location.hostname.endsWith('devpost.com') && !window.location.hostname.startsWith('devpost.com') && window.location.pathname == '/';
 }
 
 /**
@@ -41,6 +42,9 @@ function isOnUnstopHackathonPage() {
  */
 function getUnstopCanonicalUrl() {
     return `https://unstop.com${window.location.pathname}`;
+}
+function getDevpostCanonicalUrl() {
+    return `https://${window.location.hostname}`;
 }
 
 /**
@@ -57,30 +61,30 @@ async function getAuthToken() {
 /**
  * Check if element or parent contains registration keywords
  */
-function isRegistrationButton(element) {
-    // Climb up to 5 parent levels
-    let node = element;
-    let depth = 0;
+// function isRegistrationButton(element) {
+//     // Climb up to 5 parent levels
+//     let node = element;
+//     let depth = 0;
 
-    while (node && depth < 5) {
-        console.log("Checking:", node, node.textContent);
+//     while (node && depth < 5) {
+//         console.log("Checking:", node, node.textContent);
 
-        // Only check visible text (no aria/title stuff)
-        const text = (node.textContent || "")
-            .toLowerCase()
-            .trim();
+//         // Only check visible text (no aria/title stuff)
+//         const text = (node.textContent || "")
+//             .toLowerCase()
+//             .trim();
 
-        // strict match: has the word `register`
-        if (text.includes("register")) {
-            return { found: true, keyword: "register", element: node };
-        }
+//         // strict match: has the word `register`
+//         if (text.includes("register")) {
+//             return { found: true, keyword: "register", element: node };
+//         }
 
-        node = node.parentElement;
-        depth++;
-    }
+//         node = node.parentElement;
+//         depth++;
+//     }
 
-    return { found: false };
-}
+//     return { found: false };
+// }
 
 
 /**
@@ -116,7 +120,7 @@ async function sendRegistrationEvent(keyword, element, overrideUrl) {
             payload
         }));
 
-        console.log("rel: ", res)
+        // console.log("rel: ", res)
 
     } catch (error) {
         console.error('[HackHub Tracker] ❌ Error sending registration event:', error);
@@ -132,8 +136,10 @@ async function sendRegistrationEvent(keyword, element, overrideUrl) {
  */
 async function checkUnstopRegistration() {
     if (!isOnUnstopHackathonPage()) return;
+    console.log("on unstop hackathon page");
 
-    const btn = document.getElementById('un-register-btn');
+    const btn = document.getElementById("un-register-btn");
+    console.log("checked for btn");
     if (!btn) {
         // Not registered yet / button not present
         return;
@@ -144,6 +150,7 @@ async function checkUnstopRegistration() {
         .replace(/\s+/g, ' ')
         .trim();
 
+    console.log("button found");
     // Match the "You've Registered" text (case-insensitive)
     if (!(text.includes("you've registered") || text.includes("view details"))) {
         return;
@@ -161,91 +168,125 @@ async function checkUnstopRegistration() {
 
     console.log('[HackHub Tracker] Unstop auto-detect: user registered on', canonicalUrl);
 
-    await sendRegistrationEvent('unstop-auto', btn, canonicalUrl);
+    // await sendRegistrationEvent('unstop-auto', btn, canonicalUrl);
+    console.log("registered unstop");
+}
+
+async function checkDevpostRegistration() {
+    if (!isOnDevpostHackathonPage()) return;
+
+    const btn = document.getElementById('create-project-sidebar-cta');
+
+    if (!btn) {
+        // Not registered yet / button not present
+        return;
+    }
+
+    const text = (btn.textContent || '')
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    // Match the "Start Project" text (case-insensitive)
+    if (!(text.includes("start project"))) return;
+
+    const canonicalUrl = getDevpostCanonicalUrl();
+
+    // Avoid duplicate sends for same page
+    if (lastDevpostAutoUrl === canonicalUrl) {
+        console.log('[HackHub Tracker] Devpost auto: already tracked for', canonicalUrl);
+        return;
+    }
+
+    lastDevpostAutoUrl = canonicalUrl;
+
+    console.log('[HackHub Tracker] Devpost auto-detect: user registered on', canonicalUrl);
+
+    // await sendRegistrationEvent('devpost-auto', btn, canonicalUrl);
+    console.log("registered devpost");
 }
 
 /**
  * Handle click events with event delegation
- */
-function handleClick(event) {
-    console.log('[Tracker] handleClick fired');
+*/
+// function handleClick(event) {
+//     console.log('[Tracker] handleClick fired');
 
-    const target = event.target;
+//     const target = event.target;
 
-    // Check if this is a registration button
-    const result = isRegistrationButton(target);
+//     // Check if this is a registration button
+//     const result = isRegistrationButton(target);
 
-    if (!result.found) return
-    // Create unique identifier for this click
-    const clickId = `${window.location.href}-${result.keyword}-${Date.now()}`;
+//     if (!result.found) return
+//     // Create unique identifier for this click
+//     const clickId = `${window.location.href}-${result.keyword}-${Date.now()}`;
 
-    // Check cooldown to prevent duplicate tracking
-    if (recentClicks.has(clickId.split('-').slice(0, 2).join('-'))) {
-        console.log('[HackHub Tracker] Click ignored (cooldown period)');
-        return;
-    }
+//     // Check cooldown to prevent duplicate tracking
+//     if (recentClicks.has(clickId.split('-').slice(0, 2).join('-'))) {
+//         console.log('[HackHub Tracker] Click ignored (cooldown period)');
+//         return;
+//     }
 
-    // Add to recent clicks
-    const cooldownKey = clickId.split('-').slice(0, 2).join('-');
-    recentClicks.add(cooldownKey);
-    setTimeout(() => recentClicks.delete(cooldownKey), CLICK_COOLDOWN);
+//     // Add to recent clicks
+//     const cooldownKey = clickId.split('-').slice(0, 2).join('-');
+//     recentClicks.add(cooldownKey);
+//     setTimeout(() => recentClicks.delete(cooldownKey), CLICK_COOLDOWN);
 
-    console.log('[HackHub Tracker] 🎯 Registration button detected!', {
-        keyword: result.keyword,
-        url: window.location.href,
-        elementText: result.element.textContent?.substring(0, 50)
-    });
+//     console.log('[HackHub Tracker] 🎯 Registration button detected!', {
+//         keyword: result.keyword,
+//         url: window.location.href,
+//         elementText: result.element.textContent?.substring(0, 50)
+//     });
 
-    // Send to webhook
-    sendRegistrationEvent(result.keyword, result.element);
+//     // Send to webhook
+//     sendRegistrationEvent(result.keyword, result.element);
 
-}
+// }
 
 /**
  * Initialize the tracker
- */
+*/
 // Add near the top, after configuration:
-const HACKHUB_HOSTS = ['localhost', 'hackhub-cit.vercel.app', 'hackhub-cit-1.onrender.com', 'hackhub.com'];
+// const HACKHUB_HOSTS = ['localhost', 'hackhub-cit.vercel.app', 'hackhub-cit-1.onrender.com', 'hackhub.com'];
 
 /**
  * Check if we are on HackHub itself
- */
-function isOnHackHub() {
-    const host = window.location.hostname;
-    // Adjust this if you serve HackHub from a custom dev host
-    return HACKHUB_HOSTS.includes(host);
-}
+*/
+// function isOnHackHub() {
+//     const host = window.location.hostname;
+//     // Adjust this if you serve HackHub from a custom dev host
+//     return HACKHUB_HOSTS.includes(host);
+// }
 
 /**
  * Initialize the tracker
- */
+*/
 function initializeTracker() {
-    if (isOnHackHub()) {
-        console.log('[HackHub Tracker] Skipping tracking on HackHub domain:', window.location.href);
-        return;
-    }
-
     console.log('[HackHub Tracker] Content script loaded on:', window.location.href);
-
+    console.log(getDevpostCanonicalUrl());
     // If we're on an Unstop hackathon page, try auto-detect once on load
     if (isOnUnstopHackathonPage()) {
         console.log('[HackHub Tracker] Unstop hackathon page detected:', window.location.href);
         checkUnstopRegistration();
-        console.log('[HackHub Tracker] Skipping click detection on Unstop (auto mode only)');
-    } else {
-        // // Add click event listener with delegation
-        // document.addEventListener('click', handleClick, true);
 
-        // // Also listen for button clicks specifically (for SPAs)
-        // document.addEventListener('submit', (event) => {
-        //     const form = event.target;
-        //     const submitButton = form.querySelector('[type="submit"]');
-        //     if (submitButton) {
-        //         handleClick({ target: submitButton });
-        //     }
-        // }, true);
-        // console.log('[HackHub Tracker] Old click logic active for NON-Unstop pages');
+    } else if (isOnDevpostHackathonPage()) {
+        console.log('[HackHub Tracker] Devpost hackathon page detected:', window.location.href);
+        checkDevpostRegistration();
+
     }
+    // } else {
+    //     // // Add click event listener with delegation
+    //     // document.addEventListener('click', handleClick, true);
+
+    //     // // Also listen for button clicks specifically (for SPAs)
+    //     // document.addEventListener('submit', (event) => {
+    //     //     const form = event.target;
+    //     //     const submitButton = form.querySelector('[type="submit"]');
+    //     //     if (submitButton) {
+    //     //         handleClick({ target: submitButton });
+    //     //     }
+    //     // }, true);
+    //     // console.log('[HackHub Tracker] Old click logic active for NON-Unstop pages');
 
 }
 
@@ -257,12 +298,10 @@ if (document.readyState === 'loading') {
     initializeTracker();
 }
 
-// Re-check on dynamic content loads (for SPAs)
+// Re - check on dynamic content loads(for SPAs)
 const observer = new MutationObserver(() => {
-    if (isOnUnstopHackathonPage()) {
-        // DOM changed on Unstop hackathon page – check if state flipped to "You've Registered"
-        checkUnstopRegistration();
-    }
+    if (isOnUnstopHackathonPage()) checkUnstopRegistration();
+    else if (isOnDevpostHackathonPage()) checkDevpostRegistration();
 
     console.log('[HackHub Tracker] DOM mutation detected');
 });
