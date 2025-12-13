@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,134 +13,516 @@
     }
 
     body {
-      width: 320px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
+      width: 380px;
+      min-height: 500px;
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      background: #000000;
+      overflow: hidden;
+      position: relative;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
+    /* Animated grid background */
+    .grid-bg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(0, 255, 157, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 157, 0.1) 1px, transparent 1px);
+      background-size: 30px 30px;
+      animation: gridMove 20s linear infinite;
+      transform: perspective(500px) rotateX(60deg);
+      transform-origin: center bottom;
     }
 
-    h1 {
-      font-size: 20px;
-      margin-bottom: 5px;
+    @keyframes gridMove {
+      0% {
+        background-position: 0 0;
+      }
+
+      100% {
+        background-position: 30px 30px;
+      }
     }
 
-    .subtitle {
-      font-size: 12px;
-      opacity: 0.9;
+    /* Scanline effect */
+    .scanline {
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(transparent, rgba(0, 255, 157, 0.8), transparent);
+      animation: scan 3s linear infinite;
+      z-index: 2;
+      box-shadow: 0 0 20px rgba(0, 255, 157, 0.6);
     }
 
-    .status-card {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 15px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    @keyframes scan {
+      0% {
+        top: -5%;
+      }
+
+      100% {
+        top: 105%;
+      }
     }
 
-    .status-row {
+    /* Glitch overlay */
+    .glitch-overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0;
+      animation: glitchFlash 8s infinite;
+      background: linear-gradient(90deg,
+          transparent 0%,
+          rgba(255, 0, 157, 0.1) 50%,
+          transparent 100%);
+    }
+
+    @keyframes glitchFlash {
+
+      0%,
+      90%,
+      92%,
+      100% {
+        opacity: 0;
+      }
+
+      91% {
+        opacity: 0.3;
+      }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      padding: 30px 24px;
+    }
+
+    /* Terminal header */
+    .terminal-header {
+      background: rgba(0, 255, 157, 0.05);
+      border: 1px solid rgba(0, 255, 157, 0.3);
+      border-radius: 8px 8px 0 0;
+      padding: 10px 14px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .status-row:last-child {
+      gap: 8px;
       margin-bottom: 0;
     }
 
-    .label {
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #00ff9d;
+      box-shadow: 0 0 10px rgba(0, 255, 157, 0.8);
+      animation: dotPulse 2s infinite;
+    }
+
+    .terminal-dot:nth-child(2) {
+      background: #ffff00;
+      box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+      animation-delay: 0.3s;
+    }
+
+    .terminal-dot:nth-child(3) {
+      background: #ff0090;
+      box-shadow: 0 0 10px rgba(255, 0, 144, 0.8);
+      animation-delay: 0.6s;
+    }
+
+    @keyframes dotPulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.9);
+      }
+    }
+
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      color: #00ff9d;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    /* Terminal body */
+    .terminal-body {
+      background: rgba(0, 20, 10, 0.9);
+      border: 1px solid rgba(0, 255, 157, 0.3);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 20px;
+      box-shadow:
+        0 0 30px rgba(0, 255, 157, 0.1),
+        inset 0 0 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ASCII art logo */
+    .ascii-logo {
+      text-align: center;
+      color: #00ff9d;
+      font-size: 9px;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+      font-weight: bold;
+    }
+
+    /* Status display */
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: #00ff9d;
+      font-size: 12px;
+    }
+
+    .prompt {
+      color: #ff0090;
+      font-weight: bold;
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      50% {
+        opacity: 1;
+      }
+
+      51%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* Data rows */
+    .data-row {
+      background: rgba(0, 255, 157, 0.03);
+      border-left: 2px solid rgba(0, 255, 157, 0.4);
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .data-row::before {
+      content: '>';
+      position: absolute;
+      left: -10px;
+      color: #00ff9d;
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+
+    .data-row:hover {
+      background: rgba(0, 255, 157, 0.08);
+      border-left-color: #00ff9d;
+      transform: translateX(8px);
+    }
+
+    .data-row:hover::before {
+      opacity: 1;
+      left: -2px;
+    }
+
+    .data-label {
+      color: #ffff00;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .data-value {
+      color: #00ff9d;
       font-size: 13px;
-      opacity: 0.9;
     }
 
-    .value {
-      font-weight: 600;
-      font-size: 14px;
+    .data-value.inactive {
+      color: #ff0090;
     }
 
-    .status-indicator {
-      display: inline-block;
+    /* Status indicator */
+    .status-display {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 255, 157, 0.05);
+      padding: 14px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(0, 255, 157, 0.2);
+    }
+
+    .status-icon {
       width: 8px;
       height: 8px;
-      border-radius: 50%;
-      margin-right: 6px;
-      animation: pulse 2s infinite;
+      background: #00ff9d;
+      border-radius: 2px;
+      animation: rotate 2s linear infinite;
+      box-shadow: 0 0 15px rgba(0, 255, 157, 0.8);
     }
 
-    .status-active {
-      background: #4ade80;
+    @keyframes rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
-    .status-inactive {
-      background: #f87171;
+    .status-icon.inactive {
+      background: #ff0090;
+      box-shadow: 0 0 15px rgba(255, 0, 144, 0.8);
+      animation: none;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 11px;
-      opacity: 0.8;
-      margin-top: 15px;
-    }
-
-    .refresh-btn {
-      width: 100%;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 8px;
-      color: white;
+    .status-text-display {
+      flex: 1;
+      color: #00ff9d;
       font-size: 13px;
-      cursor: pointer;
-      transition: background 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .refresh-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
+    .status-text-display.inactive {
+      color: #ff0090;
+    }
+
+    /* Command button */
+    .cmd-button {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      border: 2px solid #00ff9d;
+      color: #00ff9d;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      margin-top: 4px;
+    }
+
+    .cmd-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 255, 157, 0.2);
+      transition: left 0.3s ease;
+    }
+
+    .cmd-button:hover {
+      background: rgba(0, 255, 157, 0.1);
+      box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .cmd-button:hover::before {
+      left: 100%;
+    }
+
+    .cmd-button:active {
+      transform: translateY(0);
+    }
+
+    /* Terminal cursor */
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background: #00ff9d;
+      margin-left: 4px;
+      animation: blink 1s infinite;
+    }
+
+    /* Footer */
+    .terminal-footer {
+      text-align: center;
+      margin-top: 16px;
+      color: rgba(0, 255, 157, 0.4);
+      font-size: 9px;
+      letter-spacing: 1px;
+    }
+
+    /* Matrix rain effect */
+    .matrix-rain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.1;
+    }
+
+    .matrix-column {
+      position: absolute;
+      color: #00ff9d;
+      font-size: 14px;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        top: -100%;
+      }
+
+      100% {
+        top: 100%;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="header">
-    <h1>🎯 HackHub Tracker</h1>
-    <p class="subtitle">Registration Click Tracker</p>
+  <div class="grid-bg"></div>
+  <div class="scanline"></div>
+  <div class="glitch-overlay"></div>
+  <div class="matrix-rain" id="matrix"></div>
+
+  <div class="container">
+    <div class="terminal-header">
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+      <div class="terminal-title">HackHub Protocol</div>
+    </div>
+
+    <div class="terminal-body">
+      <div class="ascii-logo">
+        ██╗ ██╗ █████╗ ██████╗██╗ ██╗██╗ ██╗██╗ ██╗██████╗
+        ██║ ██║██╔══██╗██╔════╝██║ ██╔╝██║ ██║██║ ██║██╔══██╗
+        ███████║███████║██║ █████╔╝ ███████║██║ ██║██████╔╝
+        ██╔══██║██╔══██║██║ ██╔═██╗ ██╔══██║██║ ██║██╔══██╗
+        ██║ ██║██║ ██║╚██████╗██║ ██╗██║ ██║╚██████╔╝██████╔╝
+        ╚═╝ ╚═╝╚═╝ ╚═╝ ╚═════╝╚═╝ ╚═╝╚═╝ ╚═╝ ╚═════╝ ╚═════╝
+
+
+      </div>
+
+      <div class="status-line">
+        <span class="prompt">root@hackhub:~$</span>
+        <span>system_check<span class="cursor"></span></span>
+      </div>
+
+      <div class="status-display">
+        <div class="status-icon"></div>
+        <div class="status-text-display" id="status-text">INITIALIZING...</div>
+      </div>
+
+      <div class="data-row">
+        <div class="data-label">[AUTH_TOKEN]</div>
+        <div class="data-value" id="token-status">NOT FOUND
+          ...</div>
+      </div>
+
+      <div class="data-row">
+        <div class="data-label">[LAST_SYNC]</div>
+        <div class="data-value" id="sync-time">--:--:--</div>
+      </div>
+
+      <button class="cmd-button" id="refresh-btn">
+        [ EXECUTE REFRESH ]
+      </button>
+    </div>
   </div>
 
-  <div class="status-card">
-    <div class="status-row">
-      <span class="label">Status:</span>
-      <span class="value">
-        <span class="status-indicator status-active"></span>
-        <span id="status-text">Active</span>
-      </span>
-    </div>
-    <div class="status-row">
-      <span class="label">Auth Token:</span>
-      <span class="value" id="token-status">Checking...</span>
-    </div>
-    <div class="status-row">
-      <span class="label">Last Synced:</span>
-      <span class="value" id="sync-time">Never</span>
-    </div>
-  </div>
+  <script>
+    // Generate matrix rain effect
+    const matrix = document.getElementById('matrix');
+    const chars = '01';
+    for (let i = 0; i < 8; i++) {
+      const column = document.createElement('div');
+      column.className = 'matrix-column';
+      column.style.left = Math.random() * 100 + '%';
+      column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      column.style.animationDelay = Math.random() * 2 + 's';
+      column.textContent = Array(20).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join('\n');
+      matrix.appendChild(column);
+    }
 
-  <button class="refresh-btn" id="refresh-btn">🔄 Refresh Status</button>
+    /**
+     * HackHub Tracker - Popup Script
+     * Displays extension status and auth token information
+     */
 
-  <div class="footer">
-    v1.0.0 | Made for HackHub
-  </div>
+    function formatTimestamp(timestamp) {
+      if (!timestamp) return '--:--:--';
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    }
 
-  <script src="popup.js"></script>
+    async function updateStatus() {
+      try {
+        const { token } = await chrome.runtime.sendMessage({ action: 'getAuthToken' })
+        const authToken = token
+
+        const tokenStatus = document.getElementById('token-status');
+        const syncTime = document.getElementById('sync-time');
+        const statusText = document.getElementById('status-text');
+        const statusIcon = document.querySelector('.status-icon');
+
+        if (authToken) {
+          const truncated = '0x' + authToken.substring(0, 8).toUpperCase() + '...';
+          tokenStatus.textContent = truncated;
+          tokenStatus.classList.remove('inactive');
+          statusText.textContent = 'CONNECTED';
+          statusText.classList.remove('inactive');
+          statusIcon.classList.remove('inactive');
+        } else {
+          tokenStatus.textContent = '0xNULL';
+          tokenStatus.classList.add('inactive');
+          statusText.textContent = 'DISCONNECTED';
+          statusText.classList.add('inactive');
+          statusIcon.classList.add('inactive');
+        }
+
+        syncTime.textContent = formatTimestamp(Date.now());
+      } catch (error) {
+        console.error('Error updating status:', error);
+      }
+    }
+
+    // Update status on load
+    updateStatus();
+
+    // Refresh button
+    document.getElementById('refresh-btn').addEventListener('click', function () {
+      updateStatus();
+
+      // Send message to background to force token check
+      chrome.runtime.sendMessage({ action: 'logEvent', message: 'Manual refresh triggered' });
+    });
+
+    // Auto-refresh every 30 seconds
+    setInterval(updateStatus, 30000);
+  </script>
 </body>
+
 </html>
