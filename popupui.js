@@ -12,17 +12,20 @@ for (let i = 0; i < 8; i++) {
 }
 
 /**
- * HackHub Tracker - Popup Script
- * Displays extension status and auth token information
+ * Terminal UI - Override the original popup.js functions to work with terminal elements
  */
 
-function formatTimestamp(timestamp) {
+// Override formatTimestamp to match terminal style
+const originalFormatTimestamp = window.formatTimestamp;
+window.formatTimestamp = function (timestamp) {
     if (!timestamp) return '--:--:--';
     const date = new Date(timestamp);
     return date.toLocaleString();
-}
+};
 
-async function updateStatus() {
+// Override updateStatus to work with terminal UI elements
+const originalUpdateStatus = window.updateStatus;
+window.updateStatus = async function () {
     try {
         const { token } = await chrome.runtime.sendMessage({ action: 'getAuthToken' })
         const authToken = token
@@ -34,35 +37,24 @@ async function updateStatus() {
 
         if (authToken) {
             const truncated = '0x' + authToken.substring(0, 8).toUpperCase() + '...';
-            tokenStatus.textContent = truncated;
-            tokenStatus.classList.remove('inactive');
-            statusText.textContent = 'CONNECTED';
-            statusText.classList.remove('inactive');
-            statusIcon.classList.remove('inactive');
+            if (tokenStatus) tokenStatus.textContent = truncated;
+            if (tokenStatus) tokenStatus.classList.remove('inactive');
+            if (statusText) statusText.textContent = 'CONNECTED';
+            if (statusText) statusText.classList.remove('inactive');
+            if (statusIcon) statusIcon.classList.remove('inactive');
         } else {
-            tokenStatus.textContent = '0xNULL';
-            tokenStatus.classList.add('inactive');
-            statusText.textContent = 'DISCONNECTED';
-            statusText.classList.add('inactive');
-            statusIcon.classList.add('inactive');
+            if (tokenStatus) tokenStatus.textContent = '0xNULL';
+            if (tokenStatus) tokenStatus.classList.add('inactive');
+            if (statusText) statusText.textContent = 'DISCONNECTED';
+            if (statusText) statusText.classList.add('inactive');
+            if (statusIcon) statusIcon.classList.add('inactive');
         }
 
-        syncTime.textContent = formatTimestamp(Date.now());
+        if (syncTime) syncTime.textContent = window.formatTimestamp(Date.now());
     } catch (error) {
         console.error('Error updating status:', error);
     }
-}
+};
 
-// Update status on load
+// Trigger initial update after override
 updateStatus();
-
-// Refresh button
-document.getElementById('refresh-btn').addEventListener('click', function () {
-    updateStatus();
-
-    // Send message to background to force token check
-    chrome.runtime.sendMessage({ action: 'logEvent', message: 'Manual refresh triggered' });
-});
-
-// Auto-refresh every 30 seconds
-setInterval(updateStatus, 30000);
