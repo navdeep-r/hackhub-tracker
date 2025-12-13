@@ -12,20 +12,17 @@ for (let i = 0; i < 8; i++) {
 }
 
 /**
- * Terminal UI - Override the original popup.js functions to work with terminal elements
+ * HackHub Tracker - Popup Script
+ * Displays extension status and auth token information
  */
 
-// Override formatTimestamp to match terminal style
-const originalFormatTimestamp = window.formatTimestamp;
-window.formatTimestamp = function (timestamp) {
+function formatTimestamp(timestamp) {
     if (!timestamp) return '--:--:--';
     const date = new Date(timestamp);
-    return date.toLocaleString();
-};
+    return date.toLocaleString(); // human readable full date/time
+}
 
-// Override updateStatus to work with terminal UI elements
-const originalUpdateStatus = window.updateStatus;
-window.updateStatus = async function () {
+async function updateStatus() {
     try {
         const { token } = await chrome.runtime.sendMessage({ action: 'getAuthToken' })
         const authToken = token
@@ -36,25 +33,22 @@ window.updateStatus = async function () {
         const statusIcon = document.querySelector('.status-icon');
 
         if (authToken) {
-            const truncated = '0x' + authToken.substring(0, 8).toUpperCase() + '...';
+            const truncated = authToken.substring(0, 8) + '...';
             if (tokenStatus) tokenStatus.textContent = truncated;
             if (tokenStatus) tokenStatus.classList.remove('inactive');
             if (statusText) statusText.textContent = 'CONNECTED';
             if (statusText) statusText.classList.remove('inactive');
             if (statusIcon) statusIcon.classList.remove('inactive');
         } else {
-            if (tokenStatus) tokenStatus.textContent = '0xNULL';
+            if (tokenStatus) tokenStatus.textContent = 'NOT FOUND';
             if (tokenStatus) tokenStatus.classList.add('inactive');
             if (statusText) statusText.textContent = 'DISCONNECTED';
             if (statusText) statusText.classList.add('inactive');
             if (statusIcon) statusIcon.classList.add('inactive');
         }
 
-        if (syncTime) syncTime.textContent = window.formatTimestamp(Date.now());
+        if (syncTime) syncTime.textContent = formatTimestamp(Date.now());
     } catch (error) {
         console.error('Error updating status:', error);
     }
-};
-
-// Trigger initial update after override
-updateStatus();
+}
