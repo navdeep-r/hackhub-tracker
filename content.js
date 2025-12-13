@@ -44,7 +44,7 @@ function getUnstopCanonicalUrl() {
     return `https://unstop.com${window.location.pathname}`;
 }
 function getDevpostCanonicalUrl() {
-    return `https://${window.location.hostname}`;
+    return `https://${window.location.hostname}/`;
 }
 
 /**
